@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mistral color scheme */
+:root {
+  --mistral-purple: #6B46C1;
+  --mistral-purple-light: #9F7AEA;
+  --mistral-purple-dark: #4C1D95;
+  --mistral-gray: #F7FAFC;
+  --mistral-gray-dark: #4A5568;
+  --mistral-accent: #E2E8F0;
+}
+
+/* Custom styles for Mistral branding */
+.bg-mistral {
+  background-color: var(--mistral-purple);
+}
+
+.text-mistral {
+  color: var(--mistral-purple);
+}
+
+.border-mistral {
+  border-color: var(--mistral-purple);
+}
+
+/* Chat bubble styles */
+.chat-bubble-user {
+  @apply bg-blue-100 text-blue-900 rounded-lg p-3 mb-2 max-w-xs ml-auto;
+}
+
+.chat-bubble-assistant {
+  @apply bg-purple-100 text-purple-900 rounded-lg p-3 mb-2 max-w-xs mr-auto;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mistral-accent);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mistral-purple);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mistral-purple-light);
+}
