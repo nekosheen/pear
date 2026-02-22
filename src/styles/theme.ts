@@ -2,17 +2,27 @@ import { css } from '@emotion/react';
 
 // Color palette
 export const colors = {
-  // Brand colors
+  // Brand colors - Mistral Purple palette
   mistral: {
     DEFAULT: '#6B46C1',
     light: '#9F7AEA',
     dark: '#4C1D95',
     50: '#F5F3FF',
+    100: '#EDE9FE',
+    200: '#DDD6FE',
+    300: '#C4B5FD',
+    400: '#A78BFA',
+    500: '#8B5CF6',
+    600: '#7C3AED',
+    700: '#6D28D9',
+    800: '#5B21B6',
+    900: '#4C1D95',
   },
   
-  // Semantic colors
+  // Semantic colors - aligned with Mistral branding
   primary: '#6B46C1',
   secondary: '#9F7AEA',
+  accent: '#8B5CF6',
   success: '#10B981',
   warning: '#F59E0B',
   danger: '#EF4444',

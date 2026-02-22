@@ -62,10 +62,11 @@ const ChatInterface: React.FC = () => {
   `;
 
   const headerStyles = css`
-    border-bottom: 1px solid ${theme.colors.gray[200]};
+    border-bottom: 1px solid ${theme.colors.mistral[100]};
     padding: ${theme.spacing[6]} ${theme.spacing[6]};
     display: flex;
     align-items: center;
+    justify-content: space-between;
     background-color: ${theme.colors.white};
     flex-shrink: 0;
   `;
@@ -129,23 +130,27 @@ const ChatInterface: React.FC = () => {
 
   const userBubbleStyles = css`
     align-self: flex-end;
-    max-width: 80%;
-    background-color: ${theme.colors.mistral.DEFAULT};
+    max-width: 75%;
+    background: linear-gradient(135deg, ${theme.colors.mistral[600]}, ${theme.colors.mistral[700]});
     color: ${theme.colors.white};
     padding: ${theme.spacing[3]} ${theme.spacing[4]};
     border-radius: ${theme.spacing[3]} ${theme.spacing[1]} ${theme.spacing[3]} ${theme.spacing[3]};
     margin-left: auto;
     word-wrap: break-word;
+    box-shadow: 0 2px 8px rgba(107, 70, 193, 0.25);
+    position: relative;
   `;
 
   const assistantBubbleStyles = css`
     align-self: flex-start;
     max-width: 80%;
-    background-color: ${theme.colors.gray[100]};
+    background-color: ${theme.colors.mistral[50]};
     color: ${theme.colors.gray[900]};
     padding: ${theme.spacing[3]} ${theme.spacing[4]};
     border-radius: ${theme.spacing[1]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]};
     margin-right: auto;
+    border: 1px solid ${theme.colors.mistral[100]};
+    position: relative;
     
     /* Markdown styling */
     h1, h2, h3, h4, h5, h6 {
@@ -160,10 +165,12 @@ const ChatInterface: React.FC = () => {
     }
     
     code {
-      background-color: ${theme.colors.gray[200]};
+      background-color: rgba(107, 70, 193, 0.08);
+      color: ${theme.colors.mistral[800]};
       padding: ${theme.spacing[1]} ${theme.spacing[2]};
       border-radius: ${theme.spacing[1]};
       font-family: monospace;
+      border: 1px solid rgba(107, 70, 193, 0.12);
     }
     
     pre {
@@ -191,7 +198,7 @@ const ChatInterface: React.FC = () => {
     width: ${theme.spacing[2]};
     height: ${theme.spacing[2]};
     border-radius: 50%;
-    background-color: ${theme.colors.gray[400]};
+    background-color: ${theme.colors.mistral[400]};
     animation: pulse 1.5s infinite ease-in-out;
     
     &:nth-child(2) {
@@ -223,7 +230,7 @@ const ChatInterface: React.FC = () => {
   `;
 
   const inputAreaStyles = css`
-    border-top: 1px solid ${theme.colors.gray[100]};
+    border-top: 1px solid ${theme.colors.mistral[100]};
     padding: ${theme.spacing[6]};
     background-color: ${theme.colors.white};
     flex-shrink: 0;
@@ -254,7 +261,8 @@ const ChatInterface: React.FC = () => {
     
     &:focus-within {
       border-color: ${theme.colors.mistral.DEFAULT};
-      box-shadow: 0 0 0 2px ${theme.colors.mistral[50]};
+      box-shadow: 0 0 0 3px ${theme.colors.mistral[50]};
+      border-width: 2px;
     }
   `;
 
@@ -292,7 +300,9 @@ const ChatInterface: React.FC = () => {
     box-shadow: ${theme.shadows.sm};
     
     &:hover:not(:disabled) {
-      background-color: ${theme.colors.mistral.dark};
+      background-color: ${theme.colors.mistral[600]};
+      transform: translateY(-1px);
+      box-shadow: ${theme.shadows.md};
     }
     
     &:disabled {
@@ -307,6 +317,11 @@ const ChatInterface: React.FC = () => {
     text-align: center;
     margin-top: ${theme.spacing[2.5]};
   `;
+
+  // Helper function to format timestamp
+  const formatTimestamp = (date: Date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div css={chatInterfaceStyles}>
@@ -336,6 +351,20 @@ const ChatInterface: React.FC = () => {
             <span css={statusTextStyles}>Online</span>
           </div>
         </div>
+        {/* Add Mistral branding */}
+        <div css={css`
+          background: linear-gradient(135deg, ${theme.colors.mistral[600]}, ${theme.colors.mistral[700]});
+          color: white;
+          padding: ${theme.spacing[1]} ${theme.spacing[3]};
+          border-radius: ${theme.spacing[2]};
+          font-size: ${theme.typography.fontSize.xs};
+          font-weight: ${theme.typography.fontWeight.medium};
+          display: flex;
+          align-items: center;
+          gap: ${theme.spacing[2]};
+        `}>
+          <span>🤖 Mistral AI</span>
+        </div>
       </motion.header>
 
       {/* Chat Area Section */}
@@ -355,18 +384,32 @@ const ChatInterface: React.FC = () => {
             {apiKey ? 'Start a new conversation...' : 'Configure your API key in settings to begin'}
           </motion.div>
         ) : (
-          messages.map((msg, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              css={msg.role === 'user' ? userBubbleStyles : assistantBubbleStyles}
-              dangerouslySetInnerHTML={{
-                __html: msg.role === 'assistant' ? marked.parse(msg.content) : msg.content
-              }}
-            />
-          ))
+          messages.map((msg, index) => {
+            const messageTime = new Date(msg.timestamp || Date.now());
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <div css={msg.role === 'user' ? userBubbleStyles : assistantBubbleStyles}
+                     dangerouslySetInnerHTML={{
+                       __html: msg.role === 'assistant' ? marked.parse(msg.content) : msg.content
+                     }}
+                />
+                <div css={css`
+                  font-size: ${theme.typography.fontSize.xs};
+                  color: ${msg.role === 'user' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(17, 24, 39, 0.5)'};
+                  margin-top: ${theme.spacing[1]};
+                  text-align: ${msg.role === 'user' ? 'right' : 'left'};
+                  padding: 0 ${theme.spacing[2]};
+                `}>
+                  {formatTimestamp(messageTime)}
+                </div>
+              </motion.div>
+            );
+          })
         )}
         
         {isLoading && (
