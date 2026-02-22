@@ -278,10 +278,10 @@ const ChatInterface: React.FC = () => {
   `;
 
   const sendButtonStyles = css`
-    padding: ${theme.spacing[2.5]};
+    padding: ${theme.spacing[2]};
     background-color: ${theme.colors.mistral.DEFAULT};
     color: ${theme.colors.white};
-    border-radius: ${theme.spacing[3]};
+    border-radius: 50%;
     border: none;
     cursor: pointer;
     display: flex;
