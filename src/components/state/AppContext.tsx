@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ConversationManager, Conversation } from '../../api/conversationManager';
 import { SettingsManager } from '../../api/settingsManager';
+import { ReliableStorage } from '../../api/reliableStorage';
 import { MistralService } from '../../api/mistralService';
 
 interface AppContextType {
@@ -24,9 +25,17 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Initialize ReliableStorage
+const reliableStorage = ReliableStorage.getInstance();
+
 export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const conversationManager = ConversationManager.getInstance();
   const settingsManager = SettingsManager.getInstance();
+  
+  // Debug: Log storage contents on initialization
+  useEffect(() => {
+    reliableStorage.debugLog();
+  }, []);
   
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
@@ -39,17 +48,46 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   const openSettings = () => setIsSettingsOpen(true);
   const closeSettings = () => setIsSettingsOpen(false);
 
-  // Initialize state from local storage
+  // Initialize state from storage
   useEffect(() => {
     const loadInitialState = () => {
       console.log('🔄 Loading initial state...');
       
-      const convs = conversationManager.getAllConversations();
-      const currentId = conversationManager.getCurrentConversationId();
-      const key = settingsManager.getApiKey();
-      const currentModel = settingsManager.getModel();
+      // Try using the existing managers first
+      let convs = conversationManager.getAllConversations();
+      let currentId = conversationManager.getCurrentConversationId();
+      let key = settingsManager.getApiKey();
+      let currentModel = settingsManager.getModel();
       
-      console.log('📊 Loaded data:', {
+      // If data is missing, try ReliableStorage as fallback
+      if ((convs.length === 0 && !key) || true) { // Always try reliable storage for now
+        console.log('💾 Trying ReliableStorage...');
+        
+        // Get data from reliable storage
+        const reliableKey = reliableStorage.getApiKey();
+        const reliableModel = reliableStorage.getModel();
+        const reliableConvs = reliableStorage.getConversations();
+        const reliableCurrentId = reliableStorage.getCurrentConversationId();
+        
+        console.log('📊 ReliableStorage data:', {
+          hasApiKey: !!reliableKey,
+          apiKeyLength: reliableKey ? reliableKey.length : 0,
+          conversationCount: reliableConvs.length,
+          currentConversationId: reliableCurrentId
+        });
+        
+        // Use reliable storage data if available
+        if (reliableKey || reliableConvs.length > 0) {
+          key = reliableKey || key;
+          currentModel = reliableModel || currentModel;
+          convs = reliableConvs.length > 0 ? reliableConvs : convs;
+          currentId = reliableCurrentId || currentId;
+          
+          console.log('✅ Using ReliableStorage data');
+        }
+      }
+      
+      console.log('📋 Final loaded data:', {
         conversationCount: convs.length,
         currentConversationId: currentId,
         hasApiKey: !!key,
