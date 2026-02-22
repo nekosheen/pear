@@ -17,6 +17,7 @@ const ChatInterface: React.FC = () => {
   const theme = useTheme();
   const [messageInput, setMessageInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Get current conversation messages
   const currentConversation = conversations.find(conv => conv.id === currentConversationId);
@@ -27,10 +28,17 @@ const ChatInterface: React.FC = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Restore focus to input after message finishes sending
+  useEffect(() => {
+    if (!isLoading && apiKey) {
+      inputRef.current?.focus();
+    }
+  }, [isLoading]);
+
   const handleSendMessage = async () => {
     const message = messageInput.trim();
     if (!message) return;
-    
+
     await sendMessage(message);
     setMessageInput('');
   };
@@ -65,18 +73,13 @@ const ChatInterface: React.FC = () => {
   const avatarStyles = css`
     width: ${theme.spacing[9]};
     height: ${theme.spacing[9]};
-    border-radius: 50%;
-    background-color: ${theme.colors.mistral.DEFAULT};
+    border-radius: 10px;
+    background: linear-gradient(135deg, #FF7000, #FF9D00);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: ${theme.shadows.sm};
-  `;
-
-  const avatarTextStyles = css`
-    color: ${theme.colors.white};
-    font-size: ${theme.typography.fontSize.sm};
-    font-weight: ${theme.typography.fontWeight.bold};
+    flex-shrink: 0;
   `;
 
   const headerInfoStyles = css`
@@ -315,15 +318,22 @@ const ChatInterface: React.FC = () => {
         css={headerStyles}
       >
         <div css={css`display: flex; align-items: center; gap: ${theme.spacing[3]};`}>
-          <div css={avatarStyles}>
-            <span css={avatarTextStyles}>M</span>
-          </div>
-          <div css={headerInfoStyles}>
-            <p css={headerTitleStyles}>Mistral AI</p>
-            <div css={statusContainerStyles}>
-              <span css={statusDotStyles}></span>
-              <span css={statusTextStyles}>Online</span>
-            </div>
+          {/* Official Mistral AI logo */}
+          <svg width="40" height="28" viewBox="0 0 365 258" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M104.107 0H52.0525V51.57H104.107V0Z" fill="#FFD800"/>
+            <path d="M312.351 0H260.296V51.57H312.351V0Z" fill="#FFD800"/>
+            <path d="M156.161 51.5701H52.0525V103.14H156.161V51.5701Z" fill="#FFAF00"/>
+            <path d="M312.353 51.5701H208.244V103.14H312.353V51.5701Z" fill="#FFAF00"/>
+            <path d="M312.356 103.14H52.0525V154.71H312.356V103.14Z" fill="#FF8205"/>
+            <path d="M104.107 154.71H52.0525V206.28H104.107V154.71Z" fill="#FA500F"/>
+            <path d="M208.228 154.711H156.174V206.281H208.228V154.711Z" fill="#FA500F"/>
+            <path d="M312.351 154.711H260.296V206.281H312.351V154.711Z" fill="#FA500F"/>
+            <path d="M156.195 206.312H0V257.882H156.195V206.312Z" fill="#E10500"/>
+            <path d="M364.439 206.312H208.244V257.882H364.439V206.312Z" fill="#E10500"/>
+          </svg>
+          <div css={statusContainerStyles}>
+            <span css={statusDotStyles}></span>
+            <span css={statusTextStyles}>Online</span>
           </div>
         </div>
       </motion.header>
@@ -408,6 +418,7 @@ const ChatInterface: React.FC = () => {
 
         <div css={inputWrapperStyles}>
           <input
+            ref={inputRef}
             type="text"
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}

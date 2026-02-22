@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ConversationManager, Conversation } from '../../api/conversationManager';
 import { SettingsManager } from '../../api/settingsManager';
+import { MistralService } from '../../api/mistralService';
 
 interface AppContextType {
   conversations: Conversation[];
@@ -9,13 +10,16 @@ interface AppContextType {
   model: string;
   isLoading: boolean;
   error: string | null;
+  isSettingsOpen: boolean;
   createConversation: () => void;
   deleteConversation: (id: string) => void;
   switchConversation: (id: string) => void;
   sendMessage: (message: string) => Promise<void>;
-  setApiKey: (key: string) => void;
-  setModel: (model: string) => void;
+  setApiKey: (key: string) => Promise<void>;
+  setModel: (model: string) => Promise<void>;
   testConnection: () => Promise<boolean>;
+  openSettings: () => void;
+  closeSettings: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -30,6 +34,10 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   const [model, setModelState] = useState<string>('mistral-tiny');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+
+  const openSettings = () => setIsSettingsOpen(true);
+  const closeSettings = () => setIsSettingsOpen(false);
 
   // Initialize state from local storage
   useEffect(() => {
@@ -114,51 +122,52 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
 
   const sendMessage = async (message: string) => {
     if (!apiKey) {
-      setError('API key not configured');
+      setError('API key not configured. Open Settings to add your Mistral API key.');
       return;
     }
-    
+
     try {
       setIsLoading(true);
       setError(null);
-      
-      // This would integrate with the MistralService
-      // For now, we'll simulate adding the message
+
+      // Add user message first
+      conversationManager.addMessage('user', message);
+      setConversations(conversationManager.getAllConversations());
+
+      // Build message history for the API
       const currentConv = conversationManager.getCurrentConversation();
-      if (currentConv) {
-        conversationManager.addMessage('user', message);
+      if (!currentConv) return;
+
+      const chatMessages = currentConv.messages.map(m => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }));
+
+      // Call Mistral API
+      const mistralService = new MistralService(apiKey, model);
+      const response = await mistralService.chat(chatMessages);
+      const assistantContent = response.choices[0]?.message?.content;
+
+      if (assistantContent) {
+        conversationManager.addMessage('assistant', assistantContent);
         setConversations(conversationManager.getAllConversations());
-        
-        // TODO: Integrate with actual Mistral API
-        // const response = await mistralService.chat(...);
-        // conversationManager.addMessage('assistant', response);
       }
     } catch (err) {
-      setError('Failed to send message');
+      setError(err instanceof Error ? err.message : 'Failed to send message');
       console.error('Send message error:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const setApiKey = (key: string) => {
-    try {
-      settingsManager.setApiKey(key);
-      setApiKeyState(key);
-    } catch (err) {
-      setError('Failed to save API key');
-      console.error('Set API key error:', err);
-    }
+  const setApiKey = async (key: string) => {
+    await settingsManager.setApiKey(key);
+    setApiKeyState(key);
   };
 
-  const setModel = (newModel: string) => {
-    try {
-      settingsManager.setModel(newModel);
-      setModelState(newModel);
-    } catch (err) {
-      setError('Failed to save model');
-      console.error('Set model error:', err);
-    }
+  const setModel = async (newModel: string) => {
+    await settingsManager.setModel(newModel);
+    setModelState(newModel);
   };
 
   const testConnection = async () => {
@@ -181,13 +190,16 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
       model,
       isLoading,
       error,
+      isSettingsOpen,
       createConversation,
       deleteConversation,
       switchConversation,
       sendMessage,
       setApiKey,
       setModel,
-      testConnection
+      testConnection,
+      openSettings,
+      closeSettings,
     }}>
       {children}
     </AppContext.Provider>

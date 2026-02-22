@@ -5,8 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pear - Mistral Chat</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'mistral': {
+              DEFAULT: '#6B46C1',
+              light: '#9F7AEA',
+              dark: '#4C1D95',
+              50: '#F5F3FF',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="../dist/renderer/main.css">
 </head>
 <body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0;">
   <div id="root"></div>
+  <script type="module" src="../dist/renderer/main.js"></script>
 </body>
 </html>

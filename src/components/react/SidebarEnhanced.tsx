@@ -11,7 +11,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = () => {
-  const { conversations, currentConversationId, createConversation } = useAppContext();
+  const { conversations, currentConversationId, createConversation, openSettings } = useAppContext();
   const theme = useTheme();
 
   const sidebarStyles = css`
@@ -189,6 +189,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
         css={settingsButtonStyles}
         title="Settings"
         aria-label="Open settings"
+        onClick={openSettings}
       >
         <div css={css`display: flex; align-items: center; gap: ${theme.spacing[3]};`}>
           <div css={userAvatarStyles}>

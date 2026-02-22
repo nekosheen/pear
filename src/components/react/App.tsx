@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { motion } from 'framer-motion';
 import ChatInterface from './ChatInterfaceFixed';
 import Sidebar from './SidebarEnhanced';
+import SettingsModal from './SettingsModal';
 import { AppProvider } from '../state/AppContext';
 import ErrorBoundary from './ErrorBoundary';
 import { AppThemeProvider } from './ThemeProvider';
@@ -23,6 +24,7 @@ const App: React.FC = () => {
             >
               <Sidebar />
               <ChatInterface />
+              <SettingsModal />
             </motion.div>
           </AppProvider>
         </AppThemeProvider>
