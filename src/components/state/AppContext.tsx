@@ -43,6 +43,23 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
       setCurrentConversationId(currentId);
       setApiKeyState(key);
       setModelState(currentModel || 'mistral-tiny');
+      
+      // If no conversations exist, create a welcome conversation
+      if (convs.length === 0) {
+        const welcomeConv = conversationManager.createConversation();
+        setConversations([welcomeConv]);
+        setCurrentConversationId(welcomeConv.id);
+        
+        // Add a welcome message
+        conversationManager.addMessage('assistant', key
+          ? 'Hello! I\'m your Mistral AI assistant. How can I help you today?'
+          : 'Welcome to Pear! To get started, open Settings (⋮) and add your Mistral API key.'
+        );
+        
+        // Refresh conversations after adding welcome message
+        const updatedConvs = conversationManager.getAllConversations();
+        setConversations(updatedConvs);
+      }
     };
     
     loadInitialState();

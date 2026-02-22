@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/main/main.js",
   "scripts": {
-    "start": "tsc && electron .",
+    "start": "npm run build:react && electron .",
     "build": "tsc && electron-builder",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -53,6 +53,7 @@
     "@types/react-dom": "^19.2.3",
     "electron-store": "^11.0.2",
     "framer-motion": "^12.34.3",
+    "marked": "^17.0.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "zustand": "^5.0.11"
