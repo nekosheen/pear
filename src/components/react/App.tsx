@@ -3,16 +3,21 @@ import { createRoot } from 'react-dom/client';
 import ChatInterface from './ChatInterface';
 import Sidebar from './Sidebar';
 import { AppProvider } from '../state/AppContext';
+import ErrorBoundary from './ErrorBoundary';
 
 // Main App Component
 const App: React.FC = () => {
   return (
-    <AppProvider>
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar />
-        <ChatInterface />
-      </div>
-    </AppProvider>
+    <React.StrictMode>
+      <ErrorBoundary>
+        <AppProvider>
+          <div className="flex h-screen overflow-hidden">
+            <Sidebar />
+            <ChatInterface />
+          </div>
+        </AppProvider>
+      </ErrorBoundary>
+    </React.StrictMode>
   );
 };
 
