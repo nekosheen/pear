@@ -6,6 +6,7 @@ import Sidebar from './SidebarEnhanced';
 import { AppProvider } from '../state/AppContext';
 import ErrorBoundary from './ErrorBoundary';
 import { AppThemeProvider } from './ThemeProvider';
+import '../../styles/main.css';
 
 // Main App Component
 const App: React.FC = () => {

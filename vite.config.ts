@@ -21,6 +21,7 @@ export default defineConfig({
   build: {
     outDir: 'dist/renderer',
     emptyOutDir: true,
+    copyPublicDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/components/react/App.tsx')
