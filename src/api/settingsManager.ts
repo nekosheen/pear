@@ -19,7 +19,19 @@ export class SettingsManager {
   }
 
   public getApiKey(): string | null {
-    return localStorage.getItem(this.API_KEY_KEY)
+    try {
+      const key = localStorage.getItem(this.API_KEY_KEY)
+      // Validate the key format
+      if (key && (key.length < 20 || !/^[a-zA-Z0-9_-]+$/.test(key))) {
+        console.warn('Invalid API key format found, clearing...')
+        this.clearApiKey()
+        return null
+      }
+      return key
+    } catch (error) {
+      console.error('Failed to read API key from localStorage:', error)
+      return null
+    }
   }
 
   public async setApiKey(apiKey: string): Promise<void> {
@@ -29,7 +41,21 @@ export class SettingsManager {
     if (!/^[a-zA-Z0-9_-]+$/.test(apiKey)) {
       throw new Error('API key contains invalid characters')
     }
-    localStorage.setItem(this.API_KEY_KEY, apiKey)
+    
+    try {
+      localStorage.setItem(this.API_KEY_KEY, apiKey)
+      
+      // Verify the key was saved correctly
+      const savedKey = localStorage.getItem(this.API_KEY_KEY)
+      if (savedKey !== apiKey) {
+        throw new Error('Failed to persist API key to localStorage')
+      }
+      
+      console.log('API key saved successfully')
+    } catch (error) {
+      console.error('Failed to save API key to localStorage:', error)
+      throw new Error('Failed to save API key: ' + (error instanceof Error ? error.message : 'Unknown error'))
+    }
   }
 
   public getModel(): string {

@@ -17,7 +17,10 @@ export class ConversationManager {
   private readonly STORAGE_KEY = 'pear_conversations'
   private readonly CURRENT_KEY = 'pear_current_conversation_id'
 
-  private constructor() {}
+  private constructor() {
+    // Test if localStorage is available and working
+    this.testStorage()
+  }
 
   static getInstance(): ConversationManager {
     if (!ConversationManager.instance) {
@@ -26,15 +29,60 @@ export class ConversationManager {
     return ConversationManager.instance
   }
 
+  private testStorage(): void {
+    try {
+      // Test if localStorage is working
+      const testKey = '__pear_storage_test__'
+      localStorage.setItem(testKey, 'test')
+      const value = localStorage.getItem(testKey)
+      localStorage.removeItem(testKey)
+      
+      if (value !== 'test') {
+        throw new Error('localStorage test failed')
+      }
+    } catch (error) {
+      console.error('localStorage is not available or not working:', error)
+      throw new Error('Storage is not available in this environment')
+    }
+  }
+
   // ─── Private storage helpers ──────────────────────────────────────────────
 
   private load(): Conversation[] {
-    const raw = localStorage.getItem(this.STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as Conversation[]) : []
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY)
+      if (!raw) return []
+      
+      const parsed = JSON.parse(raw) as Conversation[]
+      
+      // Validate the data structure
+      if (!Array.isArray(parsed)) {
+        console.error('Invalid conversations data format, resetting...')
+        this.persist([])
+        return []
+      }
+      
+      return parsed
+    } catch (error) {
+      console.error('Failed to load conversations from localStorage:', error)
+      return []
+    }
   }
 
   private persist(conversations: Conversation[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(conversations))
+    try {
+      const serialized = JSON.stringify(conversations)
+      localStorage.setItem(this.STORAGE_KEY, serialized)
+      
+      // Verify the data was saved correctly
+      const saved = localStorage.getItem(this.STORAGE_KEY)
+      if (saved !== serialized) {
+        throw new Error('Failed to persist conversations to localStorage')
+      }
+    } catch (error) {
+      console.error('Failed to save conversations to localStorage:', error)
+      throw new Error('Failed to persist conversations: ' + (error instanceof Error ? error.message : 'Unknown error'))
+    }
   }
 
   // ─── Conversation CRUD ────────────────────────────────────────────────────
