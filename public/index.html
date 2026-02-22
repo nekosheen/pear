@@ -25,6 +25,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="../src/styles/main.css" rel="stylesheet">
   <script src="../dist/renderer/renderer.js" type="module" defer></script>
+  <script src="../src/components/react/App.tsx" type="module" defer></script>
 </head>
 <body class="bg-gray-100 h-screen flex overflow-hidden" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
 
@@ -81,8 +82,8 @@
 
   </div>
 
-  <!-- Main Chat Area -->
-  <div class="flex-1 flex flex-col bg-white min-w-0">
+  <!-- React Root Container -->
+  <div id="root" class="flex h-screen overflow-hidden"></div>
 
     <!-- Header — clean, no settings button here -->
     <div class="border-b border-gray-200 px-6 py-4 flex items-center bg-white">
