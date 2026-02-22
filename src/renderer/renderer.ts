@@ -110,20 +110,39 @@ function renderSidebar(): void {
   conversations.forEach(conv => {
     const isActive = conv.id === currentId
 
-    const item = document.createElement('button')
+    const item = document.createElement('div')
     item.className = `conversation-item${isActive ? ' active' : ''}`
-    item.title = conv.title
-    item.innerHTML = `
+    
+    const itemButton = document.createElement('button')
+    itemButton.className = 'conversation-button'
+    itemButton.title = conv.title
+    itemButton.innerHTML = `
       <span class="conv-title">${escapeHtml(conv.title)}</span>
       <span class="conv-date">${formatRelativeDate(conv.updatedAt)}</span>
     `
 
-    item.addEventListener('click', () => {
+    itemButton.addEventListener('click', () => {
       if (conv.id !== conversationManager.getCurrentConversationId()) {
         loadConversation(conv.id)
       }
     })
 
+    const deleteButton = document.createElement('button')
+    deleteButton.className = 'delete-conversation-button'
+    deleteButton.title = 'Delete conversation'
+    deleteButton.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    `
+
+    deleteButton.addEventListener('click', (e) => {
+      e.stopPropagation() // Prevent triggering the conversation click
+      deleteConversation(conv.id)
+    })
+
+    item.appendChild(itemButton)
+    item.appendChild(deleteButton)
     conversationList.appendChild(item)
   })
 }
@@ -147,6 +166,21 @@ function loadConversation(id: string): void {
   chatMessages.scrollTop = chatMessages.scrollHeight
   renderSidebar()
   messageInput.focus()
+}
+
+function deleteConversation(id: string): void {
+  const currentId = conversationManager.getCurrentConversationId()
+  
+  // Delete the conversation
+  conversationManager.deleteConversation(id)
+  
+  // If we deleted the current conversation, start a new one
+  if (currentId === id) {
+    startNewChat()
+  } else {
+    // Otherwise just refresh the sidebar
+    renderSidebar()
+  }
 }
 
 function startNewChat(): void {

@@ -111,7 +111,7 @@ For issues, questions, or feature requests, please open an issue on GitHub.
 
 ## Screenshots
 
-![Error Page](screenshots/error_page.png)
+![Main Screen](screenshots/main_screen.png)
 
 ## Roadmap
 
