@@ -40,7 +40,6 @@
 - Add loading state during API calls
 
 #### API Integration
-- Initialize MistralService with provided API key: `uYB7hPISF2VXqyissHWWVOfitmCGCAEv`
 - Implement error handling for API calls
 - Display API errors to user
 
