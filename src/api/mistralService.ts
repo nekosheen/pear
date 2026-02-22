@@ -20,11 +20,28 @@ export class MistralService {
   private config: MistralConfig;
 
   constructor(apiKey: string, model: string = 'mistral-tiny') {
+    if (!apiKey || apiKey.length < 20) {
+      throw new Error('Invalid API key');
+    }
+    
     this.config = {
       apiKey,
       baseUrl: 'https://api.mistral.ai/v1',
       model
     };
+  }
+
+  public updateSettings(apiKey: string, model: string): void {
+    if (!apiKey || apiKey.length < 20) {
+      throw new Error('Invalid API key');
+    }
+    
+    this.config.apiKey = apiKey;
+    this.config.model = model;
+  }
+
+  public getCurrentModel(): string {
+    return this.config.model;
   }
 
   async chat(messages: ChatMessage[]): Promise<MistralResponse> {

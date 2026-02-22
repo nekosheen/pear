@@ -1,53 +1,284 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Mistral color scheme */
-:root {
-  --mistral-purple: #6B46C1;
-  --mistral-purple-light: #9F7AEA;
-  --mistral-purple-dark: #4C1D95;
-  --mistral-gray: #F7FAFC;
-  --mistral-gray-dark: #4A5568;
-  --mistral-accent: #E2E8F0;
-}
+/* =====================
+   Chat Bubble Styles
+   ===================== */
 
-/* Custom styles for Mistral branding */
-.bg-mistral {
-  background-color: var(--mistral-purple);
-}
-
-.text-mistral {
-  color: var(--mistral-purple);
-}
-
-.border-mistral {
-  border-color: var(--mistral-purple);
-}
-
-/* Chat bubble styles */
 .chat-bubble-user {
-  @apply bg-blue-100 text-blue-900 rounded-lg p-3 mb-2 max-w-xs ml-auto;
+  background: linear-gradient(135deg, #7C3AED, #6B46C1);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+  padding: 10px 16px;
+  max-width: 72%;
+  margin-left: auto;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.25);
 }
 
 .chat-bubble-assistant {
-  @apply bg-purple-100 text-purple-900 rounded-lg p-3 mb-2 max-w-xs mr-auto;
+  background: #F9FAFB;
+  color: #111827;
+  border-radius: 18px 18px 18px 4px;
+  padding: 10px 16px;
+  max-width: 85%;
+  margin-right: auto;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.6;
+  border: 1px solid #E5E7EB;
 }
 
-/* Scrollbar styling */
+/* =====================
+   Markdown Rendering
+   ===================== */
+
+.markdown-body p {
+  margin: 0 0 8px 0;
+}
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  font-weight: 600;
+  color: #111827;
+  margin: 12px 0 6px 0;
+  line-height: 1.3;
+}
+.markdown-body h1 { font-size: 18px; }
+.markdown-body h2 { font-size: 16px; }
+.markdown-body h3 { font-size: 15px; }
+.markdown-body h4 { font-size: 14px; }
+
+.markdown-body strong { font-weight: 600; }
+.markdown-body em     { font-style: italic; }
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+.markdown-body li {
+  margin: 3px 0;
+}
+.markdown-body ul { list-style-type: disc; }
+.markdown-body ol { list-style-type: decimal; }
+
+/* Inline code */
+.markdown-body code {
+  font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  background: rgba(107, 70, 193, 0.08);
+  color: #5B21B6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(107, 70, 193, 0.12);
+}
+
+/* Code blocks */
+.markdown-body pre {
+  background: #1e1e2e;
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 10px 0;
+  border: 1px solid #313244;
+}
+.markdown-body pre code {
+  font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 12.5px;
+  color: #cdd6f4;
+  background: none;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  line-height: 1.7;
+}
+
+/* Blockquotes */
+.markdown-body blockquote {
+  border-left: 3px solid #6B46C1;
+  margin: 8px 0;
+  padding: 4px 0 4px 14px;
+  color: #6B7280;
+  font-style: italic;
+}
+.markdown-body blockquote p { margin: 0; }
+
+/* Links */
+.markdown-body a {
+  color: #6B46C1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.markdown-body a:hover { color: #4C1D95; }
+
+/* Horizontal rule */
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid #E5E7EB;
+  margin: 12px 0;
+}
+
+/* Tables */
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #E5E7EB;
+}
+.markdown-body th {
+  background: #F3F4F6;
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #E5E7EB;
+}
+.markdown-body td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #F3F4F6;
+}
+.markdown-body tr:last-child td { border-bottom: none; }
+
+/* =====================
+   Loading Animation
+   ===================== */
+
+.chat-bubble-assistant.loading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+}
+
+.loading-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #9CA3AF;
+  border-radius: 50%;
+  animation: bounce 1.4s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* =====================
+   No-API-key notice
+   ===================== */
+
+.no-api-key-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  color: #92400E;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.no-api-key-notice strong {
+  font-weight: 600;
+}
+
+.no-api-key-notice.hidden {
+  display: none;
+}
+
+/* Dim the input wrapper when disabled */
+#input-wrapper:has(input:disabled) {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* =====================
+   Sidebar: Conversation List
+   ===================== */
+
+.conversation-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+  gap: 2px;
+}
+
+.conversation-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.conversation-item.active {
+  background: rgba(107, 70, 193, 0.35);
+}
+
+.conversation-item.active:hover {
+  background: rgba(107, 70, 193, 0.45);
+}
+
+.conv-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #D1D5DB;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  display: block;
+}
+
+.conversation-item.active .conv-title {
+  color: #EDE9FE;
+}
+
+.conv-date {
+  font-size: 11px;
+  color: #6B7280;
+}
+
+.conversation-item.active .conv-date {
+  color: #C4B5FD;
+}
+
+/* =====================
+   Scrollbar
+   ===================== */
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--mistral-accent);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--mistral-purple);
-  border-radius: 4px;
+  background: #D1D5DB;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--mistral-purple-light);
+  background: #9CA3AF;
 }
