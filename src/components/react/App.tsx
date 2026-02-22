@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { motion } from 'framer-motion';
-import ChatInterface from './ChatInterface';
+import ChatInterface from './ChatInterfaceFixed';
 import Sidebar from './SidebarEnhanced';
 import { AppProvider } from '../state/AppContext';
 import ErrorBoundary from './ErrorBoundary';
