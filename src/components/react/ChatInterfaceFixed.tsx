@@ -386,6 +386,7 @@ const ChatInterface: React.FC = () => {
         ) : (
           messages.map((msg, index) => {
             const messageTime = new Date(msg.timestamp || Date.now());
+            console.log('Message timestamp:', msg.timestamp, 'Formatted:', formatTimestamp(messageTime));
             return (
               <motion.div
                 key={index}
@@ -404,6 +405,7 @@ const ChatInterface: React.FC = () => {
                   margin-top: ${theme.spacing[1]};
                   text-align: ${msg.role === 'user' ? 'right' : 'left'};
                   padding: 0 ${theme.spacing[2]};
+                  font-weight: ${theme.typography.fontWeight.medium};
                 `}>
                   {formatTimestamp(messageTime)}
                 </div>
