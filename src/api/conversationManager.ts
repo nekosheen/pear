@@ -51,6 +51,13 @@ export class ConversationManager {
   private load(): Conversation[] {
     try {
       const raw = localStorage.getItem(this.STORAGE_KEY)
+      console.log('📂 ConversationManager.load():', {
+        rawPresent: !!raw,
+        rawLength: raw ? raw.length : 0,
+        storageLength: localStorage.length,
+        storageKeys: Array.from({length: localStorage.length}, (_, i) => localStorage.key(i))
+      })
+      
       if (!raw) return []
       
       const parsed = JSON.parse(raw) as Conversation[]
@@ -62,6 +69,7 @@ export class ConversationManager {
         return []
       }
       
+      console.log('📋 Loaded conversations:', parsed.length)
       return parsed
     } catch (error) {
       console.error('Failed to load conversations from localStorage:', error)

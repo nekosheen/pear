@@ -21,6 +21,13 @@ export class SettingsManager {
   public getApiKey(): string | null {
     try {
       const key = localStorage.getItem(this.API_KEY_KEY)
+      console.log('🔑 SettingsManager.getApiKey():', {
+        keyPresent: !!key,
+        keyLength: key ? key.length : 0,
+        keyPreview: key ? key.substring(0, 10) + '...' : 'null',
+        storageLength: localStorage.length
+      })
+      
       // Validate the key format
       if (key && (key.length < 20 || !/^[a-zA-Z0-9_-]+$/.test(key))) {
         console.warn('Invalid API key format found, clearing...')

@@ -42,10 +42,20 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   // Initialize state from local storage
   useEffect(() => {
     const loadInitialState = () => {
+      console.log('🔄 Loading initial state...');
+      
       const convs = conversationManager.getAllConversations();
       const currentId = conversationManager.getCurrentConversationId();
       const key = settingsManager.getApiKey();
       const currentModel = settingsManager.getModel();
+      
+      console.log('📊 Loaded data:', {
+        conversationCount: convs.length,
+        currentConversationId: currentId,
+        hasApiKey: !!key,
+        apiKeyLength: key ? key.length : 0,
+        model: currentModel
+      });
       
       setConversations(convs);
       setCurrentConversationId(currentId);
@@ -54,6 +64,7 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
       
       // If no conversations exist, create a welcome conversation
       if (convs.length === 0) {
+        console.log('🆕 Creating welcome conversation...');
         const welcomeConv = conversationManager.createConversation();
         setConversations([welcomeConv]);
         setCurrentConversationId(welcomeConv.id);
@@ -73,7 +84,10 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
     loadInitialState();
     
     // Set up event listeners for external changes
-    window.addEventListener('storage', loadInitialState);
+    window.addEventListener('storage', () => {
+      console.log('🔄 Storage change detected, reloading...');
+      loadInitialState();
+    });
     
     return () => {
       window.removeEventListener('storage', loadInitialState);
