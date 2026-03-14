@@ -1,65 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { css } from '@emotion/react';
-import { useAppContext } from '../state/AppContext';
-import { useTheme } from './ThemeProvider';
+import { useAppContext } from '../../state/AppContext';
+import CustomSelect, {SelectOption} from '../custom/CustomSelect';
+import {css} from "@emotion/react";
+import { useTheme } from '../ThemeProvider';
+import { faTemperatureLow } from '@fortawesome/free-solid-svg-icons';
 
-const MODELS = [
-  { id: 'mistral-large-latest', label: 'Mistral Large (Latest)' },
-  { id: 'mistral-small-latest', label: 'Mistral Small (Latest)' },
-  { id: 'open-mistral-7b', label: 'Mistral 7B' },
-  { id: 'open-mixtral-8x7b', label: 'Mixtral 8x7B' },
-  { id: 'open-mixtral-8x22b', label: 'Mixtral 8x22B' },
+
+export interface Model {
+  name: string;
+  label: string;
+  description: string;
+  temperature: number | undefined;
+};
+
+// default updated at 13.03.2026
+export const MODELS_DEFAULT: SelectOption[] = [
+  {
+    description:"Official mistral-large-2512 Mistral AI model",
+    label:"mistral-large-latest",
+    name:"mistral-large-latest",
+    temperature:0.3
+  },
+  {
+    description:"Our latest enterprise-grade small model with the latest version released June 2025.",
+    label:"mistral-small-latest",
+    name:"mistral-small-latest",
+    temperature:0.3
+  },
+  { description:"Our best multilingual open source model released July 2024.",
+    label:"open-mistral-nemo",
+    name:"open-mistral-nemo",
+    temperature:0.3
+  },
 ];
 
+
 const SettingsModal: React.FC = () => {
-  const { isSettingsOpen, closeSettings, apiKey, model, setApiKey, setModel, testConnection } = useAppContext();
+
   const theme = useTheme();
-
-  const [keyInput, setKeyInput] = useState('');
-  const [selectedModel, setSelectedModel] = useState(model);
-  const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isSettingsOpen) {
-      setKeyInput(apiKey ?? '');
-      setSelectedModel(model);
-      setTestResult(null);
-      setSaveError(null);
-    }
-  }, [isSettingsOpen, apiKey, model]);
-
-  const handleSave = async () => {
-    setSaveError(null);
-    try {
-      if (keyInput && keyInput !== apiKey) {
-        await setApiKey(keyInput);
-      }
-      await setModel(selectedModel);
-      closeSettings();
-    } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save settings');
-    }
-  };
-
-  const handleTest = async () => {
-    setIsTesting(true);
-    setTestResult(null);
-    try {
-      // Temporarily set the key for testing if it's new
-      if (keyInput && keyInput !== apiKey) {
-        await setApiKey(keyInput);
-      }
-      const ok = await testConnection();
-      setTestResult(ok ? 'success' : 'error');
-    } catch {
-      setTestResult('error');
-    } finally {
-      setIsTesting(false);
-    }
-  };
 
   const overlayStyles = css`
     position: fixed;
@@ -116,21 +95,6 @@ const SettingsModal: React.FC = () => {
 
   const selectStyles = css`
     width: 100%;
-    padding: ${theme.spacing[2]} ${theme.spacing[3]};
-    border: 1px solid ${theme.colors.gray[300]};
-    border-radius: 8px;
-    font-size: ${theme.typography.fontSize.sm};
-    color: ${theme.colors.gray[900]};
-    background: ${theme.colors.white};
-    outline: none;
-    box-sizing: border-box;
-    cursor: pointer;
-    transition: border-color 0.2s;
-
-    &:focus {
-      border-color: ${theme.colors.mistral.DEFAULT};
-      box-shadow: 0 0 0 2px ${theme.colors.mistral[50]};
-    }
   `;
 
   const buttonRowStyles = css`
@@ -179,6 +143,7 @@ const SettingsModal: React.FC = () => {
     margin-top: ${theme.spacing[1]};
   `;
 
+
   const testResultStyles = (ok: boolean) => css`
     margin-top: ${theme.spacing[2]};
     font-size: ${theme.typography.fontSize.xs};
@@ -217,6 +182,77 @@ const SettingsModal: React.FC = () => {
     &:hover { color: ${theme.colors.gray[700]}; }
   `;
 
+  const { isSettingsOpen, closeSettings, apiKey, model, setApiKey, setModel, testConnection, getMistralModels } = useAppContext();
+
+  const [keyInput, setKeyInput] = useState('');
+  const [selectedModel, setSelectedModel] = useState(model);
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [models, setModels] = useState<SelectOption[]>(MODELS_DEFAULT);
+
+  function getTemperatureColorHSL(temp:number | undefined, minTemp = 0.0, maxTemp = 2.0) {
+    if (!temp) return undefined
+    const clampedTemp = Math.max(minTemp, Math.min(maxTemp, temp));
+    const norm = (clampedTemp - minTemp) / (maxTemp - minTemp);
+    const hue = 240 - (norm * 240);
+    return `hsl(${hue}, 80%, 40%)`;
+  }
+
+  useEffect(() => {
+    if (isSettingsOpen) {
+      setKeyInput(apiKey ?? '');
+      setSelectedModel(model);
+      setTestResult(null);
+      setSaveError(null);
+      if (apiKey) {
+        getMistralModels(apiKey).then((data:any)=>{
+          //use the default in case of error or empty response
+          data.length>0 &&
+          setModels(data.map((m:Model)=>({
+            value: m.name,
+            label: m.label.split('-').join(' '),
+            iconTooltip: 'temperature '+m.temperature,
+            description: m.description,
+            icon: faTemperatureLow,
+            iconColor: getTemperatureColorHSL(m.temperature),
+            title: m.name
+          })) as SelectOption[])
+        })
+      }
+    }
+  }, [isSettingsOpen, apiKey, model]);
+
+  const handleSave = async () => {
+    setSaveError(null);
+    try {
+      if (keyInput && keyInput !== apiKey) {
+        await setApiKey(keyInput);
+      }
+      await setModel(selectedModel);
+      closeSettings();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save settings');
+    }
+  };
+
+  const handleTest = async () => {
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      // Temporarily set the key for testing if it's new
+      if (keyInput && keyInput !== apiKey) {
+        await setApiKey(keyInput);
+      }
+      const ok = await testConnection();
+      setTestResult(ok ? 'success' : 'error');
+    } catch {
+      setTestResult('error');
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       {isSettingsOpen && (
@@ -254,7 +290,7 @@ const SettingsModal: React.FC = () => {
                 css={inputStyles}
                 value={keyInput}
                 onChange={(e) => { setKeyInput(e.target.value); setTestResult(null); }}
-                placeholder="Enter your Mistral API key…"
+                placeholder="Enter your Mistral API key..."
                 autoComplete="off"
               />
               <p css={hintStyles}>
@@ -266,7 +302,7 @@ const SettingsModal: React.FC = () => {
               </p>
               {testResult && (
                 <p css={testResultStyles(testResult === 'success')}>
-                  {testResult === 'success' ? '✓ Connection successful!' : '✗ Connection failed — check your key.'}
+                  {testResult === 'success' ? '[OK] Connection successful!' : '[X] Connection failed - check your key.'}
                 </p>
               )}
             </div>
@@ -274,21 +310,20 @@ const SettingsModal: React.FC = () => {
             {/* Model */}
             <div css={fieldGroupStyles}>
               <label css={labelStyles} htmlFor="model-select">Model</label>
-              <select
-                id="model-select"
-                css={selectStyles}
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-              >
-                {MODELS.map(m => (
-                  <option key={m.id} value={m.id}>{m.label}</option>
-                ))}
-              </select>
+              <div css={selectStyles}>
+                <CustomSelect
+                  id="model-select"
+                  value={selectedModel}
+                  options={models}
+                  onChange={setSelectedModel}
+                  ariaLabel="Select a model"
+                />
+              </div>
             </div>
 
             <div css={buttonRowStyles}>
               <button css={secondaryBtnStyles} onClick={handleTest} disabled={isTesting || !keyInput}>
-                {isTesting ? 'Testing…' : 'Test Connection'}
+                {isTesting ? 'Testing...' : 'Test Connection'}
               </button>
               <button css={primaryBtnStyles} onClick={handleSave}>
                 Save
@@ -302,3 +337,4 @@ const SettingsModal: React.FC = () => {
 };
 
 export default SettingsModal;
+

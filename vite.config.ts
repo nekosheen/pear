@@ -14,7 +14,9 @@ export default defineConfig({
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: ['**/node_modules/**', '**/dist/**', '**/*.d.ts']
-    }
+    },
+    include: ['src/tests/**/*.test.{ts,tsx}'],
+    exclude: ['dist/**', 'node_modules/**']
   },
   
   // Build configuration for Electron

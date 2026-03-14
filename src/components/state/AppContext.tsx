@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ConversationManager, Conversation } from '../../api/conversationManager';
-import { SettingsManager } from '../../api/settingsManager';
-import { MistralService } from '../../api/mistralService';
+import React, {createContext, useContext, useEffect, useState} from 'react';
+import {Conversation, ConversationManager} from '../../api/conversationManager';
+import {SettingsManager} from '../../api/settingsManager';
+import {MistralService} from '../../api/mistralService';
+import {Model} from "../react/settings/SettingsModal";
 
 interface AppContextType {
   conversations: Conversation[];
@@ -20,6 +21,7 @@ interface AppContextType {
   testConnection: () => Promise<boolean>;
   openSettings: () => void;
   closeSettings: () => void;
+  getMistralModels: (key: string) => Promise<Model[]>
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -182,6 +184,16 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
     }
   };
 
+  const getMistralModels = async () => {
+    if (!apiKey) return false;
+    try{
+      return await settingsManager.getAvailableModels(apiKey);
+    }catch (error){
+      setError('Error getting available models');
+    }
+  }
+
+
   return (
     <AppContext.Provider value={{
       conversations,
@@ -200,6 +212,7 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
       testConnection,
       openSettings,
       closeSettings,
+      getMistralModels
     }}>
       {children}
     </AppContext.Provider>
