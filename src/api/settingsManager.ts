@@ -2,6 +2,8 @@
 // electron-store runs in the main process and requires IPC — localStorage
 // is the correct approach here since all settings operations happen in the renderer.
 
+import {Model} from "../components/react/settings/SettingsModal";
+
 export class SettingsManager {
   private static instance: SettingsManager | null = null
 
@@ -57,24 +59,28 @@ export class SettingsManager {
     }
   }
 
-  public async getAvailableModels(apiKey: string): Promise<string[]> {
+  public async getAvailableModels(apiKey: string): Promise<Model[]> {
     try {
       const response = await fetch('https://api.mistral.ai/v1/models', {
         headers: {
           'Authorization': `Bearer ${apiKey}`
         }
       })
-
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`)
       }
+      const data = await response.json() as { data: Array<{ id: string , description:string, default_model_temperature: number | undefined}> }
+      const models = data.data;
+      return models.map((m) => ({
+        name: m.id,
+        label: m.id,
+        description: m.description ?? '',
+        temperature: m.default_model_temperature ?? undefined
+      }));
 
-      const data = await response.json() as { data: Array<{ id: string }> }
-      return data.data.map(m => m.id)
     } catch (error) {
       console.error('Error fetching models:', error)
-      // Return sensible defaults if API call fails
-      return ['mistral-tiny', 'mistral-small', 'mistral-medium', 'mistral-large-latest']
+      return []
     }
   }
 
